@@ -21,10 +21,10 @@ sub enqueue {
         my $jobid;
         eval {
             my $sth = $dbh->prepare_cached('INSERT INTO job (func, arg, enqueue_time) VALUES (?,?,?)');
-            $sth->bind_param(1, $func);
-            $sth->bind_param(2, $arg);
-            $sth->bind_param(3, time);
-            $sth->execute();
+
+            my ( $sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst ) = localtime(time);
+            my $time = sprintf('%04d-%02d-%02d %02d:%02d:%02d', $year + 1900, $mon + 1, $mday, $hour, $min, $sec);
+            $sth->execute($func, $arg, $time);
             $jobid = $dbh->{mysql_insertid};
         };
         return $jobid if defined $jobid;
